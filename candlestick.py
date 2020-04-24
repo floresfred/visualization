@@ -1,8 +1,13 @@
+#!/usr/bin/env python
+
+__author__ = 'Fred Flores'
+__version__ = '0.0.1'
+__date__ = '2020-04-19'
+__email__ = 'fredflorescfa@gmail.com'
+
 from math import pi
 import pandas as pd
 from alpha_vantage_data import AlphaVantage
-import matplotlib.pyplot as plt
-from visualization import viz
 
 from bokeh.plotting import figure, show, output_file
 
