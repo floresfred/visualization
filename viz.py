@@ -150,3 +150,57 @@ def series(df, title='My Chart', colors=seaborn.color_palette(n_colors=12), figs
         axs[1].text(x, y, sig_digits % y, horizontalalignment='left', fontsize=10, rotation=45)
 
     plt.show()
+
+
+def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), legend_title=('leg_title', 12),
+        sig_digits=2, width=0.4, xticklabels=None):
+
+    """ Plot each row of x as a bar chart series.
+            row values = bar heights (y-axis)
+            row index = series in legend
+            column index = categories on x-axis"""
+
+    assert isinstance(x, np.ndarray), 'Invalid numpy array'
+
+    rows = np.arange(1, x.shape[0] + 1)
+    columns = np.arange(x.shape[1])
+
+    for arg in [title, xlabel, ylabel, legend_title]:
+        assert isinstance(arg, tuple), 'Invalid tuple'
+        assert isinstance(arg[0], str), 'Invalid string in tuple'
+        assert isinstance(arg[1], int), 'Invalid integer for fontsize'
+
+    if xticklabels:
+        assert isinstance(xticklabels, dict), 'Invalid dictionary for xticklabels.'
+        for idx in columns:
+            assert idx in xticklabels.keys(), str(x) + ' key not found in xticklabels dictionary.'
+    else:
+        xticklabels = {d: d for d in columns}
+
+    def auto_label(rects, ax):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate(('%.' + str(sig_digits) + 'f') % height,
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        ha='center', va='bottom')
+
+    fig, ax = plt.subplots(figsize=(16, 6))
+
+    centers = np.arange(-(len(rows)-1), len(rows), 2)
+
+    for pos, ctr in zip(rows, centers):
+        rects = ax.bar(columns + (ctr * (width/2)), x[pos-1], width, label=str(pos))
+        auto_label(rects, ax)
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(ylabel[0], fontsize=ylabel[1])
+    ax.set_xlabel(xlabel[0], fontsize=xlabel[1])
+    ax.set_title(title[0], fontsize=title[1])
+    ax.set_xticks(columns)
+    ax.set_xticklabels([xticklabels[d] for d in columns])
+    ax.legend(title=legend_title[0], fontsize=legend_title[1])
+
+    fig.tight_layout()
+
+    plt.show()
