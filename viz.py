@@ -8,6 +8,7 @@ __email__ = 'fredflorescfa@gmail.com'
 import numpy as np
 from scipy.stats import kurtosis, skew, norm
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn
@@ -202,5 +203,24 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), le
     ax.legend(title=legend_title[0], fontsize=legend_title[1])
 
     fig.tight_layout()
+
+    plt.show()
+
+
+def grid_2d(X, animated=False):
+    """Display grid of numpy array X where each cell is filled with a color based on its value."""
+
+    # make a color map of fixed colors
+    cmap = mpl.colors.ListedColormap(['white', 'black'])
+    # bounds = [-6, -2, 2, 6]
+    # norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+
+    # tell imshow about color map so that only set colors are used
+    # img = plt.imshow(X, interpolation='nearest', cmap=cmap, norm=norm)
+    img = plt.imshow(X, interpolation='nearest', cmap=cmap, animated=animated)
+    img.axes.grid(False)
+
+    # make a color bar
+    #plt.colorbar(img, cmap=cmap, norm=norm, boundaries=bounds, ticks=[-5, 0, 5])
 
     plt.show()
