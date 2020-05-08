@@ -32,7 +32,7 @@ def get_patch(patches, search_value):
     return patch_index
 
 
-def histogram(s, title='My Data', bins=100):
+def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
 
     data_types = {pd.core.series.Series: (lambda x: x.values),
                   np.ndarray: (lambda x: x),
@@ -43,6 +43,7 @@ def histogram(s, title='My Data', bins=100):
     y = data_types[type(s)](s)
     is_valid = ~np.isnan(y)
 
+    plt.figure(figsize=figsize)
     bin_y, bin_x, patches = plt.hist(y[is_valid], bins=bins, density=True, color='darkseagreen')
     for i, rectangle in enumerate(patches):
         patches[i].set_edgecolor('darkseagreen')  # overriding seaborn white edge
