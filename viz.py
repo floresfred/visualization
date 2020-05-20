@@ -208,11 +208,11 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), le
     plt.show()
 
 
-def grid_2d(X, animated=False):
+def grid_2d(X, animated=False, cmap='RdYlGn'):
     """Display grid of numpy array X where each cell is filled with a color based on its value."""
 
     # make a color map of fixed colors
-    cmap = mpl.colors.ListedColormap(['white', 'black'])
+    # cmap = mpl.colors.ListedColormap(['white', 'black'])
     # bounds = [-6, -2, 2, 6]
     # norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
@@ -225,3 +225,15 @@ def grid_2d(X, animated=False):
     #plt.colorbar(img, cmap=cmap, norm=norm, boundaries=bounds, ticks=[-5, 0, 5])
 
     plt.show()
+
+
+def candlestick(df, close, high, low, title='', figsize=(14, 6)):
+    plt.figure(figsize=figsize)
+    plt.plot(df.index, df[close], '.', c='darkblue')
+    plt.plot((df.index, df.index), (df[high], df[low]), c='indianred', lw=1)
+    plt.ylabel('Price per Share', fontsize=14)
+    plt.title(title, fontsize=14)
+    plt.xticks(fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.show()
+
