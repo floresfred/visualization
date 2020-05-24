@@ -154,8 +154,9 @@ def series(df, title='My Chart', colors=seaborn.color_palette(n_colors=12), figs
     plt.show()
 
 
-def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), legend_title=('leg_title', 12),
-        sig_digits=2, width=0.4, xticklabels=None):
+def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12),
+        legend_items=np.arange(0,20), legend_title=('leg_title', 12),
+        sig_digits=2, width=0.4, xticklabels=None, rotation=0, colors=seaborn.color_palette(n_colors=10)):
 
     """ Plot each row of x as a bar chart series.
             row values = bar heights (y-axis)
@@ -172,7 +173,7 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), le
         assert isinstance(arg[0], str), 'Invalid string in tuple'
         assert isinstance(arg[1], int), 'Invalid integer for fontsize'
 
-    if xticklabels:
+    if xticklabels is not None:
         assert isinstance(xticklabels, dict), 'Invalid dictionary for xticklabels.'
         for idx in columns:
             assert idx in xticklabels.keys(), str(x) + ' key not found in xticklabels dictionary.'
@@ -192,7 +193,8 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), le
     centers = np.arange(-(len(rows)-1), len(rows), 2)
 
     for pos, ctr in zip(rows, centers):
-        rects = ax.bar(columns + (ctr * (width/2)), x[pos-1], width, label=str(pos))
+        rects = ax.bar(columns + (ctr * (width/2)), x[pos-1], width, label=str(pos), facecolor=colors[pos-1],
+                       edgecolor=colors[pos-1])
         auto_label(rects, ax)
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
@@ -200,8 +202,9 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12), le
     ax.set_xlabel(xlabel[0], fontsize=xlabel[1])
     ax.set_title(title[0], fontsize=title[1])
     ax.set_xticks(columns)
-    ax.set_xticklabels([xticklabels[d] for d in columns])
-    ax.legend(title=legend_title[0], fontsize=legend_title[1])
+    ax.set_xticklabels([xticklabels[d] for d in columns], rotation=rotation)
+    ax.legend(legend_items, title=legend_title[0], fontsize=legend_title[1],
+              bbox_to_anchor=(1.01, 1), loc='upper left', ncol=1)
 
     fig.tight_layout()
 
