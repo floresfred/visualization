@@ -113,6 +113,84 @@ def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
     plt.show()
 
 
+def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[.01, 0.99],
+                  xlim=None, ylim=None, axvline=None):
+    """ Parameterize winsorization and remove mean, stdev colored bars. """
+    data_types = {pd.core.series.Series: (lambda x: x.values),
+                  np.ndarray: (lambda x: x),
+                  list: (lambda x: np.array(x))}
+
+    assert type(s) in data_types.keys(), 'invalid data type. Enter numpy array, pandas series , or list of float.'
+
+    y = data_types[type(s)](s)
+    is_valid = ~np.isnan(y)
+
+    y = y[is_valid]
+    lo_win = np.nanquantile(y, winsor_bound[0])
+    hi_win = np.nanquantile(y, winsor_bound[1])
+
+    y[y < lo_win] = lo_win
+    y[y > hi_win] = hi_win
+
+    plt.figure(figsize=figsize)
+    bin_y, bin_x, patches = plt.hist(y, bins=bins, density=False, color='darkseagreen')
+    for i, rectangle in enumerate(patches):
+        patches[i].set_edgecolor('darkseagreen')  # overriding seaborn white edge
+
+    if xlim is not None:
+        plt.xlim(xlim[0], xlim[1])
+
+    if ylim is not None:
+        plt.ylim(ylim[0], ylim[1])
+
+    if axvline is not None:
+        plt.axvline(axvline, color='darkred', lw=1, ls='--')
+
+    plt.ylabel('Probability Density')
+    plt.title(title)
+
+    # Identify median in histogram
+    p10 = np.quantile(y, 0.10)
+    p25 = np.quantile(y, 0.25)
+    p50 = np.quantile(y, 0.50)
+    p75 = np.quantile(y, 0.75)
+    p90 = np.quantile(y, 0.90)
+
+    mu = np.mean(y)
+    sigma = np.std(y)
+
+    # Print statistics in right margin
+    right_margin = 0.76
+    plt.subplots_adjust(right=right_margin)
+    text_left = right_margin + .03
+
+    kurt = kurtosis(y)
+    sku = skew(y)
+    stats = {r'Total = {:.0f}': (len(y), 0.85, 'black'),
+             r'Valid = {:.0f}': (np.sum(is_valid), 0.82, 'black'),
+             r'Nan = {:.0f}': (np.sum(~is_valid), 0.79, 'black'),
+             r'Mean = {:.3f}': (mu, 0.73, 'black'),
+             r'Stdev = {:.3f}': (sigma, 0.70, 'black'),
+             r'Kurtosis = {:.3f}': (kurt, 0.64, 'black'),
+             r'Skew = {:.3f}': (sku, 0.61, 'black'),
+             r'P25 = {:.3f}': (p25, 0.55, 'black'),
+             r'Median = {:.3f}': (p50, 0.52, 'black'),
+             r'P75 = {:.3f}': (p75, 0.49, 'black'),
+             r'IQR = {:.3f}': (p75 - p25, 0.43, 'black'),
+             r'IDR = {:.3f}': (p90 - p10, 0.40, 'black')}
+
+    for key in stats.keys():
+        plt.gcf().text(text_left, stats[key][1], key.format(stats[key][0]), color=stats[key][2], fontsize=10)
+
+    # Superimpose normal distribution curve
+    # x = np.linspace(norm.ppf(0.001, loc=mu, scale=sigma), norm.ppf(0.999, loc=mu, scale=sigma), 100)
+    # plt.plot(x, norm.pdf(x, loc=mu, scale=sigma), 'r-', lw=3, color='grey', alpha=0.6,
+    #          label='Normal Distribution')
+    # plt.legend(fontsize=10)
+
+    plt.show()
+
+
 def series(df, title='My Chart', colors=seaborn.color_palette(n_colors=12), figsize=(6.4, 4.8),
            digits=2):
     """ Plot line(s) chart from a Pandas Series or DataFrame.
