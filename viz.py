@@ -232,8 +232,8 @@ def series(df, title='My Chart', colors=seaborn.color_palette(n_colors=12), figs
     plt.show()
 
 
-def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12),
-        legend_items=np.arange(0,20), legend_title=('leg_title', 12),
+def bar(x, figsize=(16,6), title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12),
+        legend_items=np.arange(0,20), legend_title=('leg_title', 12), legend_out=True, ylim=None,
         sig_digits=2, width=0.4, xticklabels=None, rotation=0, colors=seaborn.color_palette(n_colors=10)):
 
     """ Plot each row of x as a bar chart series.
@@ -264,9 +264,9 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12),
             height = rect.get_height()
             ax.annotate(('%.' + str(sig_digits) + 'f') % height,
                         xy=(rect.get_x() + rect.get_width() / 2, height),
-                        ha='center', va='bottom')
+                        ha='center', va='bottom', fontsize=14)
 
-    fig, ax = plt.subplots(figsize=(16, 6))
+    fig, ax = plt.subplots(figsize=figsize)
 
     centers = np.arange(-(len(rows)-1), len(rows), 2)
 
@@ -281,8 +281,15 @@ def bar(x, title=('title', 14), xlabel=('xlabel', 12), ylabel=('ylabel', 12),
     ax.set_title(title[0], fontsize=title[1])
     ax.set_xticks(columns)
     ax.set_xticklabels([xticklabels[d] for d in columns], rotation=rotation)
-    ax.legend(legend_items, title=legend_title[0], fontsize=legend_title[1],
-              bbox_to_anchor=(1.01, 1), loc='upper left', ncol=1)
+
+    if ylim is not None:
+        ax.set_ylim(ylim[0], ylim[1])
+
+    if legend_out:
+        ax.legend(legend_items, title=legend_title[0], fontsize=legend_title[1],
+                  bbox_to_anchor=(1.01, 1), loc='upper left', ncol=1)
+    else:
+        ax.legend(legend_items, title=legend_title[0], fontsize=legend_title[1])
 
     fig.tight_layout()
 
