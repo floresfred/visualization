@@ -114,7 +114,7 @@ def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
 
 
 def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[.01, 0.99],
-                  xlim=None, ylim=None, axvline=None):
+                  xlim=None, ylim=None, axvline=None, show_normal=False):
     """ Parameterize winsorization and remove mean, stdev colored bars. """
     data_types = {pd.core.series.Series: (lambda x: x.values),
                   np.ndarray: (lambda x: x),
@@ -183,11 +183,13 @@ def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[
         plt.gcf().text(text_left, stats[key][1], key.format(stats[key][0]), color=stats[key][2], fontsize=10)
 
     # Superimpose normal distribution curve
-    # x = np.linspace(norm.ppf(0.001, loc=mu, scale=sigma), norm.ppf(0.999, loc=mu, scale=sigma), 100)
-    # plt.plot(x, norm.pdf(x, loc=mu, scale=sigma), 'r-', lw=3, color='grey', alpha=0.6,
-    #          label='Normal Distribution')
-    # plt.legend(fontsize=10)
-
+    if show_normal:
+        x = np.linspace(norm.ppf(0.001, loc=mu, scale=sigma), norm.ppf(0.999, loc=mu, scale=sigma), 100)
+        plt.plot(x, norm.pdf(x, loc=mu, scale=sigma), 'r-', lw=3, color='grey', alpha=0.6,
+                 label='Normal Distribution')
+        plt.legend(fontsize=10)
+        r = norm.rvs(size=1000)
+    norm.p
     plt.show()
 
 
