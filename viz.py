@@ -12,6 +12,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn
+from utilities import util
 
 seaborn.set()
 
@@ -34,13 +35,7 @@ def get_patch(patches, search_value):
 
 def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
 
-    data_types = {pd.core.series.Series: (lambda x: x.values),
-                  np.ndarray: (lambda x: x),
-                  list: (lambda x: np.array(x))}
-
-    assert type(s) in data_types.keys(), 'invalid data type. Enter numpy array, pandas series , or list of float.'
-
-    y = data_types[type(s)](s)
+    y = util.numpy_array(s)
     is_valid = ~np.isnan(y)
 
     plt.figure(figsize=figsize)
@@ -113,7 +108,7 @@ def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
     plt.show()
 
 
-def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[.01, 0.99],
+def histogram_new(s, title='My Data', bins=100, figsize=(12, 8), winsor_bound=[.01, 0.99],
                   xlim=None, ylim=None, axvline=None, show_normal=False):
     """ Parameterize winsorization and remove mean, stdev colored bars. """
     data_types = {pd.core.series.Series: (lambda x: x.values),
@@ -133,7 +128,7 @@ def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[
     y[y > hi_win] = hi_win
 
     plt.figure(figsize=figsize)
-    bin_y, bin_x, patches = plt.hist(y, bins=bins, density=False, color='darkseagreen')
+    bin_y, bin_x, patches = plt.hist(y, bins=bins, density=True, color='darkseagreen')
     for i, rectangle in enumerate(patches):
         patches[i].set_edgecolor('darkseagreen')  # overriding seaborn white edge
 
@@ -189,7 +184,6 @@ def histogram_new(s, title='My Data', bins=100, figsize=(12, 12), winsor_bound=[
                  label='Normal Distribution')
         plt.legend(fontsize=10)
         r = norm.rvs(size=1000)
-    norm.p
     plt.show()
 
 
@@ -318,12 +312,13 @@ def grid_2d(X, animated=False, cmap='RdYlGn'):
 
 
 def candlestick(df, close, high, low, title='', figsize=(14, 6)):
+    df = df.sort_index(ascending=True)
     plt.figure(figsize=figsize)
     plt.plot(df.index, df[close], '.', c='darkblue')
     plt.plot((df.index, df.index), (df[high], df[low]), c='indianred', lw=1)
     plt.ylabel('Price per Share', fontsize=14)
     plt.title(title, fontsize=14)
-    plt.xticks(fontsize=14)
     plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     plt.show()
 
