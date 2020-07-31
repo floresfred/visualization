@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# HTML (added by FFlores 2020-04-19)
-*.html
+# csv (added by FFlores 2020-07-31)
+*.csv
