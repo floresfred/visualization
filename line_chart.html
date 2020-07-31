@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Line Chart</title>
+    <style>
+      .line {
+          fill: none;
+          stroke: blue
+      }
+    </style>
+</head>
+<body>
+  <svg id="container" height="600" width="1000">
+      <g id="body" transform="translate(50,50)"></g>
+      <g id="xAxis"></g>
+      <g id="yAxis"></g>
+  </svg>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+  let body = d3.select("#body")
+  d3.csv("stock_price_trunc.csv").then(showData)
+
+  function showData(data) {
+      let bodyHeight = 400
+      let bodyWidth = 800
+
+      data = data.map(d => ({
+          date: new Date(d.date),
+          price: +d.price
+      }))
+
+      let maxValue = d3.max(data, d => d.price)
+
+      let yScale = d3.scaleLinear()
+          .range([bodyHeight, 0])
+          .domain([0, maxValue]);
+      body.append("g")
+          .call(d3.axisLeft(yScale));
+
+      let xScale = d3.scaleTime()
+          .domain(d3.extent(data, d => d.date))
+          .range([0, bodyWidth]);
+
+      body.append("g")
+          .attr("transform", "translate(0," + bodyHeight + ")")
+          .call(d3.axisBottom(xScale)
+              .tickFormat(d3.timeFormat("%b")))
+
+      valueline = d3.line()
+          .x(d => xScale(d.date))
+          .y(d => yScale(d.price))
+          .defined(d => !!d.price) // show line gaps when there are undefined values
+
+      body.append("path")
+          .datum(data)
+          .attr("d", valueline)
+          .attr("class", "line")
+
+
+  }
+</script>
+</body>
+</html>
