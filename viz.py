@@ -8,8 +8,8 @@ __email__ = 'fredflorescfa@gmail.com'
 import numpy as np
 from scipy.stats import kurtosis, skew, norm
 import pandas as pd
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import FormatStrFormatter
 import seaborn
 from utilities import util
@@ -109,7 +109,7 @@ def histogram(s, title='My Data', bins=100, figsize=(12, 12)):
 
 
 def histogram_new(s, title='My Data', bins=100, figsize=(12, 8), winsor_bound=[.01, 0.99],
-                  xlim=None, ylim=None, axvline=None, show_normal=False):
+                  xlim=None, ylim=None, axvline=None, show_normal=False, sig_digits=6):
     """ Parameterize winsorization and remove mean, stdev colored bars. """
     data_types = {pd.core.series.Series: (lambda x: x.values),
                   np.ndarray: (lambda x: x),
@@ -161,18 +161,19 @@ def histogram_new(s, title='My Data', bins=100, figsize=(12, 8), winsor_bound=[.
 
     kurt = kurtosis(y)
     sku = skew(y)
+    float_format = '{:.' + str(int(sig_digits)) + 'f}'
     stats = {r'Total = {:.0f}': (len(y), 0.85, 'black'),
              r'Valid = {:.0f}': (np.sum(is_valid), 0.82, 'black'),
              r'Nan = {:.0f}': (np.sum(~is_valid), 0.79, 'black'),
-             r'Mean = {:.3f}': (mu, 0.73, 'black'),
-             r'Stdev = {:.3f}': (sigma, 0.70, 'black'),
-             r'Kurtosis = {:.3f}': (kurt, 0.64, 'black'),
-             r'Skew = {:.3f}': (sku, 0.61, 'black'),
-             r'P25 = {:.3f}': (p25, 0.55, 'black'),
-             r'Median = {:.3f}': (p50, 0.52, 'black'),
-             r'P75 = {:.3f}': (p75, 0.49, 'black'),
-             r'IQR = {:.3f}': (p75 - p25, 0.43, 'black'),
-             r'IDR = {:.3f}': (p90 - p10, 0.40, 'black')}
+             r'Mean = ' + float_format: (mu, 0.73, 'black'),
+             r'Stdev = ' + float_format: (sigma, 0.70, 'black'),
+             r'Kurtosis = ' + float_format: (kurt, 0.64, 'black'),
+             r'Skew = ' + float_format: (sku, 0.61, 'black'),
+             r'P25 = ' + float_format: (p25, 0.55, 'black'),
+             r'Median = ' + float_format: (p50, 0.52, 'black'),
+             r'P75 = ' + float_format: (p75, 0.49, 'black'),
+             r'IQR = ' + float_format: (p75 - p25, 0.43, 'black'),
+             r'IDR = ' + float_format: (p90 - p10, 0.40, 'black')}
 
     for key in stats.keys():
         plt.gcf().text(text_left, stats[key][1], key.format(stats[key][0]), color=stats[key][2], fontsize=10)
@@ -320,5 +321,60 @@ def candlestick(df, close, high, low, title='', figsize=(14, 6)):
     plt.title(title, fontsize=14)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
+    plt.show()
+
+
+def heatmap(X, title='mytitle', cmap='RdYlGn', figsize=(8, 8), xlabel='', ylabel='', show_axis=False,
+            xticklabels=None, yticklabels=None, rotation=0, vmin=-1, vmax=1):
+    """
+    Display grid of numpy array X where each cell is filled with a color based on its value.
+
+    :param X: numpy.array
+    :param title: string
+    :param cmap: python color map
+    :param figsize: tuple of integers
+    :param xlabel: string
+    :param ylabel: string
+    :param show_axis: boolean
+    :param xticklabels: list of tick labels
+    :param yticklabels: list of tick labels
+    :param rotation: integer in [0, 360] indicating rotation of x-axis tick labels
+    :param vmin: float, minimum value in data range for colormap coverage
+    :param vmax: float, maximum value in data range for colormap coverage
+    :return:
+    """
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    img = ax.imshow(X, interpolation=None, cmap=cmap, animated=False,
+                    vmin=vmin, vmax=vmax, aspect='auto')
+    img.axes.grid(False)
+
+    ax.set_title(title, fontsize=14)
+    ax.set_xlabel(xlabel, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
+
+    ax.set_xticks(np.arange(0, X.shape[1]))
+    ax.set_yticks(np.arange(0, X.shape[0]))
+
+    if xticklabels is None:
+        ax.set_xticklabels(np.arange(1, X.shape[1] + 1, 1))
+    else:
+        ax.set_xticklabels(xticklabels, rotation=rotation)
+
+    if yticklabels is None:
+        ax.set_yticklabels(np.arange(X.shape[0], 0, -1))
+    else:
+        ax.set_yticklabels(yticklabels)
+
+    ax.get_xaxis().set_visible(show_axis)
+    ax.get_yaxis().set_visible(show_axis)
+
+    # make a color bar
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.5)
+
+    plt.colorbar(img, cax=cax)
+
     plt.show()
 
